@@ -7,7 +7,7 @@ create_task_df <- function(name, start, end) {
 }
 
 # Define tasks using 'task name', 'start month', and 'end month'
-# Order tasks in chronological order as you want them to appear on the chart (i.e. by start date and name)
+# Order tasks as you want them to appear on the chart (i.e. by start date and name)
 tasks <- list(
   create_task_df("Protocol, database and CRFs", 1, 2),
   create_task_df("HRA and REC approvals", 2, 3),
@@ -22,7 +22,10 @@ tasks <- list(
 # Combine tasks into one data frame
 task_df <- do.call(rbind, tasks)
 
-# Check if tasks are ordered by start date (and re-orders them if not)
+# Number of tasks
+n_tasks <- nrow(task_df)
+
+# Check if tasks are ordered by start date
 if (!is.unsorted(task_df$start)) {
   # Reverse levels for y-axis ordering
   task_df$name <- factor(task_df$name, levels = rev(task_df$name))
@@ -42,7 +45,7 @@ max_end_date <- max(task_df$end)
 
 # Create Gantt chart
 g <- ggplot(task_df, aes(fill = name)) +
-  geom_rect(aes(xmin = start, xmax = end, ymin = as.numeric(name) - 0.45, ymax = as.numeric(name) + 0.45)) +
+  geom_rect(aes(xmin = start, xmax = end, ymin = as.numeric(name) - 2.5 / n_tasks, ymax = as.numeric(name) + 0.5 / n_tasks)) +
   scale_y_continuous(labels = levels(task_df$name), breaks = 1:nlevels(task_df$name)) +
   scale_x_continuous(breaks = seq(0, max_end_date, by = 5), limits = c(0, max_end_date + 5)) +
   labs(title = "Project Gantt Chart", x = "Months", y = "", fill = "") +
