@@ -1,5 +1,11 @@
 install.packages("ggplot2")
+install.packages("ggrepel")
 library(ggplot2)
+library(ggrepel)
+
+# Global variable to adjust the height of the bars
+# Increase the bar_factor for thicker bars and decrease for thinner bars
+bar_factor <- 2.5
 
 # Function to create a data frame from task specifications
 create_task_df <- function(name, start, end) {
@@ -45,7 +51,9 @@ max_end_date <- max(task_df$end)
 
 # Create Gantt chart
 g <- ggplot(task_df, aes(fill = name)) +
-  geom_rect(aes(xmin = start, xmax = end, ymin = as.numeric(name) - 2.5 / n_tasks, ymax = as.numeric(name) + 0.5 / n_tasks)) +
+  geom_rect(aes(xmin = start, xmax = end, ymin = as.numeric(name) - bar_factor / n_tasks, ymax = as.numeric(name) + bar_factor / n_tasks)) +
+  geom_label_repel(aes(x = start, y = as.numeric(name), label = start), vjust = 0.5, hjust = 0.5, nudge_x = -0.1, size = 10/bar_factor, color = "white", fill = "black", family = "sans", fontface = "bold") +
+  geom_label_repel(aes(x = end, y = as.numeric(name), label = end), vjust = 0.5, hjust = 0.5, nudge_x = 0.1, size = 10/bar_factor, color = "white", fill = "black", family = "sans", fontface = "bold") +
   scale_y_continuous(labels = levels(task_df$name), breaks = 1:nlevels(task_df$name)) +
   scale_x_continuous(breaks = seq(0, max_end_date, by = 5), limits = c(0, max_end_date + 5)) +
   labs(title = "Project Gantt Chart", x = "Months", y = "", fill = "") +
@@ -55,4 +63,5 @@ g <- ggplot(task_df, aes(fill = name)) +
 
 # Save to PDF, dimensions for A4 landscape (dimensions in points)
 ggsave("gantt_chart.pdf", plot = g, width = 11.69, height = 8.27, units = "in")
+
 
