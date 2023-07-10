@@ -1,14 +1,13 @@
 install.packages("ggplot2")
 library(ggplot2)
 
-
 # Function to create a data frame from task specifications
 create_task_df <- function(name, start, end) {
   data.frame(name = name, start = start, end = end, stringsAsFactors = FALSE)
 }
 
 # Define tasks using 'task name', 'start month', and 'end month'
-# Order tasks as you want them to appear on the chart (i.e. by start date and name)
+# Order tasks in chronological order as you want them to appear on the chart (i.e. by start date and name)
 tasks <- list(
   create_task_df("Protocol, database and CRFs", 1, 2),
   create_task_df("HRA and REC approvals", 2, 3),
@@ -23,13 +22,14 @@ tasks <- list(
 # Combine tasks into one data frame
 task_df <- do.call(rbind, tasks)
 
-# Check if tasks are ordered by start date
+# Check if tasks are ordered by start date (and re-orders them if not)
 if (!is.unsorted(task_df$start)) {
-  task_df$name <- factor(task_df$name, levels = task_df$name)
+  # Reverse levels for y-axis ordering
+  task_df$name <- factor(task_df$name, levels = rev(task_df$name))
 } else {
   # If not ordered by start date, reorder tasks and print message for each task that was moved
   original_order <- task_df$name
-  task_df$name <- factor(task_df$name, levels = task_df$name[order(task_df$start)])
+  task_df$name <- factor(task_df$name, levels = rev(task_df$name[order(task_df$start)]))
   moved_tasks <- setdiff(original_order, task_df$name)
   
   if (length(moved_tasks) > 0) {
